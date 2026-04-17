@@ -157,9 +157,66 @@
                 grid-template-columns: 1fr;
             }
         }
+        .loading-overlay {
+            display: none;
+            position: fixed;
+             inset: 0;
+            background: rgba(255, 255, 255, 0.75);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            }
+
+        .loading-box {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            text-align: center;
+            min-width: 260px;
+            }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 6px solid #e5e7eb;
+            border-top: 6px solid #2563eb;
+            border-radius: 50%;
+            margin: 0 auto 14px auto;
+            animation: spin 1s linear infinite;
+            }
+
+        .loading-text {
+            font-size: 16px;
+            color: #374151;
+            }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+            }
     </style>
+    
 </head>
+<script>
+    function showLoading() {
+        document.getElementById("loadingOverlay").style.display = "flex";
+    }
+
+    window.addEventListener("pageshow", function () {
+        const overlay = document.getElementById("loadingOverlay");
+        if (overlay) {
+            overlay.style.display = "none";
+        }
+    });
+</script>
 <body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-box">
+            <div class="spinner"></div>
+            <div class="loading-text">Processing forecast, please wait...</div>
+        </div>
+    </div>
     <div class="header">
         <div class="container">
             <h1>Hybrid ARIMAX–LSTM Polymer Forecast App</h1>
@@ -173,7 +230,7 @@
                 <h2>Manual Input</h2>
                 <p class="muted">Enter up to 3 months. Leave unused rows blank.</p>
                 <p class="muted">Forecast is allowed only for months within year 2026.</p>
-                <form action="/predict/manual" method="post">
+                <form action="/predict/manual" method="post" onsubmit="showLoading()">
                     <table class="form-table">
                         <tr>
                             <th>Row</th>
@@ -216,7 +273,7 @@
                 </p>
                 <p class="muted">Only rows for year 2026 are allowed.</p>
                 <p class="muted">Use the template to avoid column-name and format errors.</p>
-                <form action="/predict/excel" method="post" enctype="multipart/form-data">
+                <form action="/predict/excel" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
                     <input type="file" name="file" accept=".xlsx,.xls">
                     <button class="btn" type="submit">Upload and Forecast</button>
                 </form>
@@ -241,7 +298,7 @@
             </div>
 
             {% if result_json %}
-            <form class="download-form" action="/download-excel" method="post">
+            <form class="download-form" action="/download-excel" method="post" onsubmit="showLoading()">
                 <input type="hidden" name="result_json" value='{{ result_json|safe }}'>
                 <button class="btn btn-secondary" type="submit">Download Results as Excel</button>
             </form>
