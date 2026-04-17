@@ -29,6 +29,10 @@ def build_lstm_model(lookback, n_features):
         Dense(32, activation="relu"),
         Dense(1)
     ])
+    
+    # 🔥 IMPORTANT: build model before loading weights
+    model.build(input_shape=(None, lookback, n_features))
+    
     return model
 
 
@@ -39,9 +43,10 @@ def load_artifacts(lookback: int, n_features: int):
     history_X = joblib.load(os.path.join(MODEL_DIR, "history_X.pkl"))
     feature_history = joblib.load(os.path.join(MODEL_DIR, "feature_history.pkl"))
 
-    lstm_model = build_lstm_model(lookback, n_features)
-    lstm_model.load_weights(os.path.join(MODEL_DIR, "lstm_model.weights.h5"))
+    from tensorflow.keras.models import load_model
 
+    lstm_model = load_model(os.path.join(MODEL_DIR, "lstm_model.h5"))
+    
     return {
         "scaler": scaler,
         "hybrid_artifacts": hybrid_artifacts,
