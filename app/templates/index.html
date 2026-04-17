@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Polymer Forecast App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 32px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #6b7280;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 22px;
+        }
+
+        .muted {
+            color: #6b7280;
+            margin-bottom: 18px;
+        }
+
+        table.form-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table.form-table th,
+        table.form-table td {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: center;
+        }
+
+        table.form-table th {
+            background: #f9fafb;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 14px;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #059669;
+        }
+
+        .btn-secondary:hover {
+            background: #047857;
+        }
+
+        .full-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+
+        .result-box {
+            overflow-x: auto;
+        }
+
+        table.result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table.result-table th,
+        table.result-table td {
+            border: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: center;
+        }
+
+        table.result-table th {
+            background: #eff6ff;
+        }
+
+        .plot-box {
+            text-align: center;
+        }
+
+        .plot-box img {
+            max-width: 100%;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .download-form {
+            margin-top: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Hybrid ARIMAX–LSTM Polymer Forecast App</h1>
+            <p>Forecast polymer import volume using manual entry or Excel upload.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="grid">
+            <div class="card">
+                <h2>Manual Input</h2>
+                <p class="muted">Enter up to 3 months. Leave unused rows blank.</p>
+                <p class="muted">Forecast is allowed only for months within year 2026.</p>
+                <form action="/predict/manual" method="post">
+                    <table class="form-table">
+                        <tr>
+                            <th>Row</th>
+                            <th>Year</th>
+                            <th>Month</th>
+                            <th>WTI</th>
+                            <th>Exchange Rate</th>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td><input type="number" name="year1"></td>
+                            <td><input type="number" name="month1"></td>
+                            <td><input type="text" name="wti1"></td>
+                            <td><input type="text" name="exchange_rate1"></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><input type="number" name="year2"></td>
+                            <td><input type="number" name="month2"></td>
+                            <td><input type="text" name="wti2"></td>
+                            <td><input type="text" name="exchange_rate2"></td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><input type="number" name="year3"></td>
+                            <td><input type="number" name="month3"></td>
+                            <td><input type="text" name="wti3"></td>
+                            <td><input type="text" name="exchange_rate3"></td>
+                        </tr>
+                    </table>
+
+                    <button class="btn" type="submit">Run Manual Forecast</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Excel Upload</h2>
+                <p class="muted">For more than 3 months, upload an Excel file.</p>
+                <p class="muted">Required columns: <b>year</b>, <b>month</b>, <b>WTI</b>, <b>Exchange_Rate</b>
+                </p>
+                <p class="muted">Only rows for year 2026 are allowed.</p>
+                <p class="muted">Use the template to avoid column-name and format errors.</p>
+                <form action="/predict/excel" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".xlsx,.xls">
+                    <button class="btn" type="submit">Upload and Forecast</button>
+                </form>
+
+                <div style="margin-top: 12px;">
+                    <a href="/download-template" class="btn btn-secondary" style="text-decoration: none;">
+                        Download Excel Template
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="full-card">
+            <h2>Forecast Results</h2>
+            <div class="result-box">
+                {% if result %}
+                    {{ result|safe }}
+                {% else %}
+                    <p class="muted">Forecast table will appear here.</p>
+                {% endif %}
+            </div>
+
+            {% if result_json %}
+            <form class="download-form" action="/download-excel" method="post">
+                <input type="hidden" name="result_json" value='{{ result_json|safe }}'>
+                <button class="btn btn-secondary" type="submit">Download Results as Excel</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <div class="full-card">
+            <h2>Forecast Plot with Historical Series</h2>
+            <div class="plot-box">
+                {% if plot_url %}
+                    <img src="data:image/png;base64,{{ plot_url }}" alt="Forecast Plot">
+                {% else %}
+                    <p class="muted">Forecast plot will appear here.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
