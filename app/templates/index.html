@@ -47,47 +47,7 @@
             gap: 20px;
             margin-bottom: 20px;
         }
-        .manual-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-top: 12px;
-        }
 
-        .month-card {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
-            padding: 16px;
-        }
-
-        .month-card h3 {
-            margin: 0 0 14px 0;
-            font-size: 18px;
-            color: #111827;
-        }
-
-        .field-group {
-            margin-bottom: 12px;
-        }
-
-        .field-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            color: #374151;
-            font-weight: 600;
-        }
-
-        .field-group input {
-            width: 100%;
-        }
-
-        @media (max-width: 992px) {
-    .manual-grid {
-        grid-template-columns: 1fr;
-    }
-        }
         .card, .full-card {
             background: white;
             border-radius: 16px;
@@ -116,25 +76,18 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        table.form-table,
         table.result-table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 620px;
+            min-width: 760px;
         }
 
-        table.form-table th,
-        table.form-table td,
         table.result-table th,
         table.result-table td {
             border: 1px solid #e5e7eb;
             padding: 10px;
             text-align: center;
             font-size: 14px;
-        }
-
-        table.form-table th {
-            background: #f9fafb;
         }
 
         table.result-table th {
@@ -238,6 +191,95 @@
             line-height: 1.4;
         }
 
+        .manual-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .month-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .month-card h3 {
+            margin: 0 0 14px 0;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .field-group {
+            margin-bottom: 12px;
+        }
+
+        .field-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .field-group input {
+            width: 100%;
+        }
+
+        .desktop-results {
+            display: block;
+        }
+
+        .mobile-results {
+            display: none;
+        }
+
+        .result-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .result-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 17px;
+            color: #111827;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-row span {
+            color: #6b7280;
+        }
+
+        .result-row strong {
+            color: #111827;
+            text-align: right;
+        }
+
+        .result-row.highlight {
+            background: #eff6ff;
+            margin: 10px -8px -8px -8px;
+            padding: 12px 8px;
+            border-radius: 10px;
+            border-bottom: none;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -245,6 +287,10 @@
 
         @media (max-width: 992px) {
             .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .manual-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -295,12 +341,12 @@
                 padding: 12px 14px;
             }
 
-            table.form-table th,
-            table.form-table td,
-            table.result-table th,
-            table.result-table td {
-                padding: 8px;
-                font-size: 13px;
+            .desktop-results {
+                display: none;
+            }
+
+            .mobile-results {
+                display: block;
             }
         }
 
@@ -346,76 +392,76 @@
     <div class="container">
         <div class="grid">
             <div class="card">
-    <h2>Manual Input</h2>
-    <p class="muted">Enter up to 3 months. Leave unused rows blank.</p>
-    <p class="muted">Forecast is allowed only for months within year {{ current_year }}.</p>
+                <h2>Manual Input</h2>
+                <p class="muted">Enter up to 3 months. Leave unused rows blank.</p>
+                <p class="muted">Forecast is allowed only for months within year {{ current_year }}.</p>
 
-    <form action="/predict/manual" method="post" onsubmit="showLoading()">
-        <div class="manual-grid">
-            <div class="month-card">
-                <h3>Month 1</h3>
-                <div class="field-group">
-                    <label for="year1">Year</label>
-                    <input type="number" id="year1" name="year1">
-                </div>
-                <div class="field-group">
-                    <label for="month1">Month</label>
-                    <input type="number" id="month1" name="month1" min="1" max="12">
-                </div>
-                <div class="field-group">
-                    <label for="wti1">WTI</label>
-                    <input type="text" id="wti1" name="wti1">
-                </div>
-                <div class="field-group">
-                    <label for="exchange_rate1">Exchange Rate</label>
-                    <input type="text" id="exchange_rate1" name="exchange_rate1">
-                </div>
+                <form action="/predict/manual" method="post" onsubmit="showLoading()">
+                    <div class="manual-grid">
+                        <div class="month-card">
+                            <h3>Month 1</h3>
+                            <div class="field-group">
+                                <label for="year1">Year</label>
+                                <input type="number" id="year1" name="year1">
+                            </div>
+                            <div class="field-group">
+                                <label for="month1">Month</label>
+                                <input type="number" id="month1" name="month1" min="1" max="12">
+                            </div>
+                            <div class="field-group">
+                                <label for="wti1">WTI</label>
+                                <input type="text" id="wti1" name="wti1">
+                            </div>
+                            <div class="field-group">
+                                <label for="exchange_rate1">Exchange Rate</label>
+                                <input type="text" id="exchange_rate1" name="exchange_rate1">
+                            </div>
+                        </div>
+
+                        <div class="month-card">
+                            <h3>Month 2</h3>
+                            <div class="field-group">
+                                <label for="year2">Year</label>
+                                <input type="number" id="year2" name="year2">
+                            </div>
+                            <div class="field-group">
+                                <label for="month2">Month</label>
+                                <input type="number" id="month2" name="month2" min="1" max="12">
+                            </div>
+                            <div class="field-group">
+                                <label for="wti2">WTI</label>
+                                <input type="text" id="wti2" name="wti2">
+                            </div>
+                            <div class="field-group">
+                                <label for="exchange_rate2">Exchange Rate</label>
+                                <input type="text" id="exchange_rate2" name="exchange_rate2">
+                            </div>
+                        </div>
+
+                        <div class="month-card">
+                            <h3>Month 3</h3>
+                            <div class="field-group">
+                                <label for="year3">Year</label>
+                                <input type="number" id="year3" name="year3">
+                            </div>
+                            <div class="field-group">
+                                <label for="month3">Month</label>
+                                <input type="number" id="month3" name="month3" min="1" max="12">
+                            </div>
+                            <div class="field-group">
+                                <label for="wti3">WTI</label>
+                                <input type="text" id="wti3" name="wti3">
+                            </div>
+                            <div class="field-group">
+                                <label for="exchange_rate3">Exchange Rate</label>
+                                <input type="text" id="exchange_rate3" name="exchange_rate3">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn" type="submit">Run Manual Forecast</button>
+                </form>
             </div>
-
-            <div class="month-card">
-                <h3>Month 2</h3>
-                <div class="field-group">
-                    <label for="year2">Year</label>
-                    <input type="number" id="year2" name="year2">
-                </div>
-                <div class="field-group">
-                    <label for="month2">Month</label>
-                    <input type="number" id="month2" name="month2" min="1" max="12">
-                </div>
-                <div class="field-group">
-                    <label for="wti2">WTI</label>
-                    <input type="text" id="wti2" name="wti2">
-                </div>
-                <div class="field-group">
-                    <label for="exchange_rate2">Exchange Rate</label>
-                    <input type="text" id="exchange_rate2" name="exchange_rate2">
-                </div>
-            </div>
-
-            <div class="month-card">
-                <h3>Month 3</h3>
-                <div class="field-group">
-                    <label for="year3">Year</label>
-                    <input type="number" id="year3" name="year3">
-                </div>
-                <div class="field-group">
-                    <label for="month3">Month</label>
-                    <input type="number" id="month3" name="month3" min="1" max="12">
-                </div>
-                <div class="field-group">
-                    <label for="wti3">WTI</label>
-                    <input type="text" id="wti3" name="wti3">
-                </div>
-                <div class="field-group">
-                    <label for="exchange_rate3">Exchange Rate</label>
-                    <input type="text" id="exchange_rate3" name="exchange_rate3">
-                </div>
-            </div>
-        </div>
-
-        <button class="btn" type="submit">Run Manual Forecast</button>
-    </form>
-</div>
 
             <div class="card">
                 <h2>Excel Upload</h2>
@@ -435,11 +481,42 @@
 
         <div class="full-card">
             <h2>Forecast Results</h2>
-            <div class="result-box">
+
+            <div class="result-box desktop-results">
                 {% if result %}
                     {{ result|safe }}
                 {% else %}
                     <p class="muted">Forecast table will appear here.</p>
+                {% endif %}
+            </div>
+
+            <div class="mobile-results">
+                {% if result_records %}
+                    {% for row in result_records %}
+                    <div class="result-card">
+                        <h3>{{ row.Date }}</h3>
+                        <div class="result-row">
+                            <span>WTI</span>
+                            <strong>{{ "%.2f"|format(row.WTI) if row.WTI != "" else "" }}</strong>
+                        </div>
+                        <div class="result-row">
+                            <span>Exchange Rate</span>
+                            <strong>{{ "%.2f"|format(row.Exchange_Rate) if row.Exchange_Rate != "" else "" }}</strong>
+                        </div>
+                        <div class="result-row">
+                            <span>ARIMAX Forecast</span>
+                            <strong>{{ "%.2f"|format(row.ARIMAX_Forecast) if row.ARIMAX_Forecast != "" else "" }}</strong>
+                        </div>
+                        <div class="result-row">
+                            <span>Hybrid Forecast</span>
+                            <strong>{{ "%.2f"|format(row.Hybrid_Forecast) if row.Hybrid_Forecast != "" else "" }}</strong>
+                        </div>
+                        <div class="result-row highlight">
+                            <span>Weighted Hybrid Forecast</span>
+                            <strong>{{ "%.2f"|format(row.Weighted_Hybrid_Forecast) if row.Weighted_Hybrid_Forecast != "" else "" }}</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
                 {% endif %}
             </div>
 

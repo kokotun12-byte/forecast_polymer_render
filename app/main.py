@@ -1,12 +1,12 @@
 import io
 import base64
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
-from datetime import datetime
 
 from fastapi import FastAPI, Request, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -22,15 +22,30 @@ app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
 
 
-def create_forecast_plot(result_df, model_artifacts):
+def create_forecast_plot(result_df: pd.DataFrame, model_artifacts: dict) -> str:
     history_y = model_artifacts["history_y"]
     historical_level = np.exp(history_y)
 
     fig, ax = plt.subplots(figsize=(12, 5))
 
-    ax.plot(historical_level.index, historical_level.values, label="Historical", linewidth=2)
-    ax.plot(result_df["Date"], result_df["ARIMAX_Forecast"], "--", label="ARIMAX Forecast")
-    ax.plot(result_df["Date"], result_df["Hybrid_Forecast"], ":", label="Hybrid Forecast")
+    ax.plot(
+        historical_level.index,
+        historical_level.values,
+        label="Historical",
+        linewidth=2
+    )
+    ax.plot(
+        result_df["Date"],
+        result_df["ARIMAX_Forecast"],
+        "--",
+        label="ARIMAX Forecast"
+    )
+    ax.plot(
+        result_df["Date"],
+        result_df["Hybrid_Forecast"],
+        ":",
+        label="Hybrid Forecast"
+    )
     ax.plot(
         result_df["Date"],
         result_df["Weighted_Hybrid_Forecast"],
@@ -74,7 +89,11 @@ def home(request: Request):
         request=request,
         name="index.html",
         context={
-            "current_year": CURRENT_YEAR
+            "current_year": CURRENT_YEAR,
+            "result": None,
+            "result_records": None,
+            "result_json": None,
+            "plot_url": None,
         }
     )
 
@@ -108,8 +127,8 @@ def download_template():
 @app.post("/download-excel")
 async def download_excel(request: Request):
     form = await request.form()
-
     data_json = form.get("result_json")
+
     if not data_json:
         return HTMLResponse("No forecast result available for download.", status_code=400)
 
@@ -238,12 +257,14 @@ def predict_manual(
 
     download_df = df.copy()
     download_df["Date"] = download_df["Date"].astype(str)
+    result_records = df.fillna("").to_dict(orient="records")
 
     return templates.TemplateResponse(
         request=request,
         name="index.html",
         context={
             "result": df.to_html(index=False, float_format="%.2f", classes="result-table"),
+            "result_records": result_records,
             "plot_url": plot_url,
             "result_json": download_df.to_json(orient="records"),
             "current_year": CURRENT_YEAR
@@ -342,12 +363,14 @@ def predict_excel(request: Request, file: UploadFile = File(...)):
 
         download_df = df.copy()
         download_df["Date"] = download_df["Date"].astype(str)
+        result_records = df.fillna("").to_dict(orient="records")
 
         return templates.TemplateResponse(
             request=request,
             name="index.html",
             context={
                 "result": df.to_html(index=False, float_format="%.2f", classes="result-table"),
+                "result_records": result_records,
                 "plot_url": plot_url,
                 "result_json": download_df.to_json(orient="records"),
                 "current_year": CURRENT_YEAR
