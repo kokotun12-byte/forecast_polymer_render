@@ -5,7 +5,7 @@ import numpy as np
 
 from tensorflow.keras.models import load_model
 
-# NumPy compatibility shim for older/newer pickle paths
+# NumPy compatibility shim for joblib/pickle artifacts
 if "numpy._core" not in sys.modules:
     sys.modules["numpy._core"] = np.core
 
@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 
 
-def load_artifacts(lookback: int, n_features: int):
+def load_artifacts(lookback: int, n_features: int) -> dict:
     scaler = joblib.load(os.path.join(MODEL_DIR, "scaler.pkl"))
     hybrid_artifacts = joblib.load(os.path.join(MODEL_DIR, "hybrid_artifacts.pkl"))
     history_y = joblib.load(os.path.join(MODEL_DIR, "history_y.pkl"))
@@ -38,4 +38,6 @@ def load_artifacts(lookback: int, n_features: int):
         "history_X": history_X,
         "feature_history": feature_history,
         "lstm_model": lstm_model,
+        "lookback": lookback,
+        "n_features": n_features,
     }

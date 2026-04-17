@@ -17,7 +17,7 @@ def run_forecast(df: pd.DataFrame, model_artifacts: dict) -> pd.DataFrame:
 
     result_df = df.copy()
 
-    # Build Date column
+    # Build Date column from year and month
     result_df["Date"] = pd.to_datetime(
         result_df["year"].astype(int).astype(str) + "-" +
         result_df["month"].astype(int).astype(str).str.zfill(2) + "-01"
@@ -28,7 +28,7 @@ def run_forecast(df: pd.DataFrame, model_artifacts: dict) -> pd.DataFrame:
     future_log = np.log(result_df[["WTI", "Exchange_Rate"]]).copy()
     future_log.columns = ["log_WTI_Price", "log_Exchange_Rate"]
 
-    # Local copies for rolling forecast
+    # Local rolling copies
     history_y_local = history_y.copy()
     history_X_local = history_X.copy()
     feature_history_local = feature_history.copy()
@@ -53,7 +53,9 @@ def run_forecast(df: pd.DataFrame, model_artifacts: dict) -> pd.DataFrame:
         )
         fit = model.fit(disp=False)
 
-        arimax_pred = fit.get_forecast(steps=1, exog=x_next).predicted_mean.iloc[0]
+        arimax_pred = float(
+            fit.get_forecast(steps=1, exog=x_next).predicted_mean.iloc[0]
+        )
 
         last_window = feature_history_local.iloc[-lookback:].copy()
         scaled_window = scaler.transform(last_window)
@@ -61,6 +63,7 @@ def run_forecast(df: pd.DataFrame, model_artifacts: dict) -> pd.DataFrame:
 
         pred_resid_scaled = float(lstm_model.predict(X_input, verbose=0)[0, 0])
 
+        # Inverse transform only the residual column
         dummy = np.zeros((1, feature_history_local.shape[1]))
         dummy[0, 0] = pred_resid_scaled
         resid = float(scaler.inverse_transform(dummy)[0, 0])
@@ -68,13 +71,14 @@ def run_forecast(df: pd.DataFrame, model_artifacts: dict) -> pd.DataFrame:
         hybrid_pred = float(arimax_pred + resid)
         weighted_pred = float(best_weight * hybrid_pred + (1 - best_weight) * arimax_pred)
 
-        arimax_log_list.append(float(arimax_pred))
+        arimax_log_list.append(arimax_pred)
         hybrid_log_list.append(hybrid_pred)
         weighted_log_list.append(weighted_pred)
         resid_scaled_list.append(pred_resid_scaled)
         resid_list.append(resid)
         dates.append(date)
 
+        # Rolling update for next step
         history_y_local = pd.concat([
             history_y_local,
             pd.Series([weighted_pred], index=[date], name=history_y_local.name)
@@ -96,7 +100,7 @@ def run_forecast(df: pd.DataFrame, model_artifacts: dict) -> pd.DataFrame:
     output["Hybrid_Log_Forecast"] = hybrid_log_list
     output["Weighted_Log_Forecast"] = weighted_log_list
 
-    # Level scale columns
+    # Convert back to level scale
     output["ARIMAX_Forecast"] = np.exp(output["ARIMAX_Log_Forecast"])
     output["Hybrid_Forecast"] = np.exp(output["Hybrid_Log_Forecast"])
     output["Weighted_Hybrid_Forecast"] = np.exp(output["Weighted_Log_Forecast"])
